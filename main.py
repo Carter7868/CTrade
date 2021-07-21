@@ -41,3 +41,4 @@ main()
 #Add a new file that provides framework to buy and sell easily. Ex: buy(BTC, 0.001, $41030)
 #Add file that constantly checks for errors (Oversold, High losses) and shuts down program
 #When window is closed program should sell all current open positions / Make a sell all button (Red in top corner of window) and set file to inactivate strategy
+#Test
