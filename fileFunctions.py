@@ -21,10 +21,10 @@ def readSettings():
 def findStrategies():
     #Finds .strategy files and returns them in a list
     strategieslist = []
-    os.chdir(r'C:\Users\Carte\Desktop\Other\CTrade\strategies')
+    os.chdir(os.path.dirname(os.path.realpath(__file__)) + '\strategies')
     for file in glob.glob("*.strategy"):
         strategieslist.append(file)
-    os.chdir(r'C:\Users\Carte\Desktop\Other\CTrade')
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
     return strategieslist
 
 def cleanDictionary(dictionary):
