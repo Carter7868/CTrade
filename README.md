@@ -2,7 +2,7 @@
 
 CTrade is an open source crypto trading tool that makes it easy to write, test and run a algorithm. CTrade is programmed in python and is designed to run off the Binance Exchange and be simply controlled through a basic GUI. Multiple strategies can be created, modified and run at the same time on multiple cores. The simplistic programming / interface allows you to easily incorporate complex strategies and machine learning algorithms.
 
-## Features
+## How To Use
 --Coming Soon--
 
 ## Features
