@@ -16,5 +16,5 @@ A clear and concise description of the different features you want your change t
 **Additional information**
 is there any additional information we need to know about your feature?
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Additional imagery**
+Add any other diagrams or screenshots about the feature request here.
