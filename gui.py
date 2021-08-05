@@ -132,17 +132,18 @@ def dropdownUpdater(object):
         settingsList[2] = dropdown.get()
         strategies["strategy"+str(i)] = str(settingsList)
         i += 1
+    strategies = cleanDictionary(strategies)
     writeSettings(strategies)
         
 def activeButtonUpdater(position):
-    print(position)
     strategies = readSettings() #Import Dictionary With Settings As List
     settingsString = strategies["strategy"+str(position)]#Convert dictionary to list of settings
     settingsList = literal_eval(settingsString)#Covert list string to list type
     if settingsList[3] == 0:
         settingsList[3] = 1
     strategies["strategy"+str(position)] = str(settingsList)
-    writeSettings(strategies)
+    strategies = cleanDictionary(strategies)
+    writeSettings(strategies) #Bad File is being passed into this
     updateStrategiesGUI()
 
 def pauseButtonUpdater(position):
@@ -152,6 +153,7 @@ def pauseButtonUpdater(position):
     if settingsList[3] == 1:
         settingsList[3] = 0
     strategies["strategy"+str(position)] = str(settingsList)
+    strategies = cleanDictionary(strategies)
     writeSettings(strategies)
     updateStrategiesGUI()
 
@@ -166,6 +168,7 @@ def removeButtonUpdater(position):
 def clearStrategiesCommand():
     strategies = readSettings()
     strategies.clear()
+    strategies = cleanDictionary(strategies)
     writeSettings(strategies)
     updateStrategiesGUI()
 
