@@ -21,7 +21,7 @@ def readSettings():
 def findStrategies():
     #Finds .strategy files and returns them in a list
     strategieslist = []
-    os.chdir(os.path.dirname(os.path.realpath(__file__)) + '\strategies')
+    os.chdir(os.path.dirname(os.path.realpath(__file__)) + os.sep + 'strategies')
     for file in glob.glob("*.strategy"):
         strategieslist.append(file)
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
