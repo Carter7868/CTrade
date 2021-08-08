@@ -1,8 +1,7 @@
 import time
-from threading import Thread
 
 #This is what your basic strategy will look like
-class ExampleStrategy:
+class Strategy:
     def __init__(self, strategyNum, coin):
         self._running = True
         self.strategyNumber = strategyNum
@@ -12,9 +11,10 @@ class ExampleStrategy:
         self._running = False
     
     def run(self):
+        #print("Running")
         while self._running:
             time.sleep(1)
-            print(self.coin)
+            #print(self.coin)
 
     def status(self):
         return "status is good"

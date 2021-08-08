@@ -11,10 +11,10 @@ class Strategy:
         self._running = False
     
     def run(self):
-        print("Running")
+        print(self.coin + " Strategy Successfully Started")
         while self._running:
             time.sleep(1)
-            print(self.coin)
+            #print(self.coin)
 
     def status(self):
         return "status is good"
