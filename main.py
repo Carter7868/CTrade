@@ -1,14 +1,9 @@
-#Started 06/19/21
-#Last Edited 06/19/21
-#Do Not Copy, Use, Distribute, or Edit
-
 from gui import initializeGUI
 from gui import updateStrategiesGUI
 from gui import refeshGUI
+from fileFunctions import disableStrategies
 
 def initialize():
-    #Initialize Program
-    print("Initializing...")
     #Load GUI
     initializeGUI()
     #Load Settings
@@ -24,6 +19,8 @@ def main():
             refeshGUI()
     except:
         print("Program Closing")
+        #Deactivate all strategies
+        disableStrategies()
 
 
 #Start
