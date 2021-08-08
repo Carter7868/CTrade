@@ -1,4 +1,6 @@
 #Creates, Updates and Refreshes the GUI
+from algoHandler import startAlgo
+from algoHandler import disableAlgo
 from os import read
 import tkinter as tk
 from tkinter.constants import BOTH, BOTTOM, END, LEFT, X
@@ -136,6 +138,7 @@ def dropdownUpdater(object):
     writeSettings(strategies)
         
 def activeButtonUpdater(position):
+    #---Updating Dictionary / GUI / Save File---
     strategies = readSettings() #Import Dictionary With Settings As List
     settingsString = strategies["strategy"+str(position)]#Convert dictionary to list of settings
     settingsList = literal_eval(settingsString)#Covert list string to list type
@@ -145,6 +148,8 @@ def activeButtonUpdater(position):
     strategies = cleanDictionary(strategies)
     writeSettings(strategies) #Bad File is being passed into this
     updateStrategiesGUI()
+    #---Starting Algorithm---
+    startAlgo(position)
 
 def pauseButtonUpdater(position):
     strategies = readSettings() #Import Dictionary With Settings As List
@@ -156,6 +161,8 @@ def pauseButtonUpdater(position):
     strategies = cleanDictionary(strategies)
     writeSettings(strategies)
     updateStrategiesGUI()
+    #---Disabling Algorithm---
+    disableAlgo(position)
 
 def removeButtonUpdater(position):
     #Removes strategies that get there remove button clicked
@@ -164,6 +171,7 @@ def removeButtonUpdater(position):
     strategies = cleanDictionary(strategies)
     writeSettings(strategies)
     updateStrategiesGUI()
+    #TRY TO DISABLE ALGO HERE
 
 def clearStrategiesCommand():
     strategies = readSettings()
