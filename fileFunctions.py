@@ -1,64 +1,81 @@
-#For Reading, Writing, and Duplicating Strategies
-#All Strategies are stored in files and accessable through these functions
+"""
+For managing strategies.ini config file and other local files
+Funtions to Read, Write, and Clean strategies.ini Dictionary
+Also has funtion to find custom user strategy files
+"""
 from configparser import ConfigParser
-import glob, os
+import glob
+import os
 import re
 from tkinter.constants import FALSE
 from ast import literal_eval
 import algoHandler
 
-#Get the configparser object
 config_object = ConfigParser()
 
 def writeSettings(dictToWrite):
-    #Write dictionary with settings to file
+    """Writes a dictionary to the strategies.ini
+    Stores as a config object
+    Dictionary contains Strategy + num as key. Eg: "Strategy1"
+    The value is a list that contains strategy settings Eg. [ETH/USDT, Binance, Example-Strategy.py, 1]
+    """
     config_object["Strategy's"] = dictToWrite
     with open('strategies.ini', 'w') as conf:
         config_object.write(conf)
 
 def readSettings():
-    #Read and return dictionary with settings to file
+    """Reads and returns a dictionary of settings from strategies.ini
+    Dictionary contains Strategy + num as key. Eg: "Strategy1"
+    The value is a list that contains strategy settings Eg. [ETH/USDT, Binance, Example-Strategy.py, 1]
+    Note: List must be converted from a string to a list after it is pulled from the dictionary
+    """
     config_object.read("strategies.ini")
     return config_object["Strategy's"]
 
 def findStrategies():
-    #Finds .strategy files and returns them in a list
-    strategieslist = []
+    """Locates strategy files in the "Strategies" file and returns them
+    Returns a list cointaining the full name of all files
+    Strategy files must contain -strategy.py on the end
+    """
+    listOfStrategyFiles = []
     os.chdir(os.path.dirname(os.path.realpath(__file__)) + os.sep + 'strategies')
-    for file in glob.glob("*-strategy.py"):
-        strategieslist.append(file)
+    for strategyFile in glob.glob("*-strategy.py"):
+        listOfStrategyFiles.append(strategyFile)
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    return strategieslist
+    return listOfStrategyFiles
 
-def cleanDictionary(dictionary):
-    #Cleans Dictionary key values
-    i = 0
-    newDictionary = {}
-    for parts in dictionary:
-        #---Rearange Running Algoritms ---
-        algorithms = algoHandler.getRunningAlgos()
-        for algo in algorithms:
-            number = re.sub('\D', '', str(parts))
-            if algo.strategyNumber == int(number):
-                algoHandler.changeAlgoPos(algo.strategyNumber, i)
+def cleanDictionary(OldDictionary):
+    """Cleans provided dictionary and reorganizes running algorithms accordingly
+    To Do:
+        -Automatically write the dictionary after cleaning it
+        -Back test listed cryptos to make sure they are treadable on binance
+    """
+    newPositionNumber = 0
+    cleanedDictionary = {}
+    for strategy in OldDictionary:
+        #Rearange Running Algoritms
+        listOfRunningAlgos = algoHandler.getRunningAlgos()
+        for algorithm in listOfRunningAlgos:
+            oldStrategyNumber = re.sub('\D', '', str(strategy))
+            if algorithm.strategyNumber == int(oldStrategyNumber):
+                algoHandler.changeAlgoPos(algorithm.strategyNumber, newPositionNumber)
         #Rearange File / Dictionary
-        newDictionary["strategy" + str(i)] = dictionary[parts]
-        i += 1
-    return newDictionary
+        cleanedDictionary["strategy" + str(newPositionNumber)] = OldDictionary[strategy]
+        newPositionNumber += 1
+    return cleanedDictionary
 
-    #Check All Strategies, Cryptos, and Providers.
-
-#Add Function to disable all strategies
 def disableStrategies():
-    strategies = readSettings() #Import Dictionary With Settings As List
+    """Disables all current strategies and runnin algorithms
+    Called when the program shuts down (and in configurable emergencys - to do)
+    """
+    stratDictionary = readSettings()
     position = 0
-    for strategy in strategies:
-        settingsString = strategies["strategy"+str(position)]#Convert dictionary to list of settings
-        settingsList = literal_eval(settingsString)#Covert list string to list type
-        if settingsList[3] == 1:
-            settingsList[3] = 0
-        strategies["strategy"+str(position)] = str(settingsList)
-        algoHandler.disableAlgo(position)
+    for strategy in stratDictionary:
+        listOfSettings = literal_eval(stratDictionary["strategy"+str(position)])
+        if listOfSettings[3] == 1:
+            listOfSettings[3] = 0
+        stratDictionary["strategy"+str(position)] = str(listOfSettings)
+        algoHandler.disableAlgo(position) #Temporary fix
         position+=1
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies)
+    algoHandler.disableAllAlgos()
+    writeSettings(cleanDictionary(stratDictionary))

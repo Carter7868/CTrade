@@ -1,26 +1,26 @@
-from gui import initializeGUI
-from gui import updateStrategiesGUI
-from gui import refeshGUI
-from fileFunctions import disableStrategies
+"""
+Main program funtion to initialize and run program
+Initialize is called first and run one time
+Main is called afterwords and contains the main program loop
+"""
+import gui
+import fileFunctions
 
 def initialize():
-    #Load GUI
-    initializeGUI()
+    gui.initialize()
     #Load Settings
     #Collect Chart Data
     #Test Binance Connection
 
 def main():
-    #Main Funtion
-    updateStrategiesGUI()
-    print("Program Started")
+    gui.updateStrategiesGUI()
     try:
         while True:
-            refeshGUI()
+            gui.refesh()
     except:
         print("Program Closing")
         #Deactivate all strategies
-        disableStrategies()
+        fileFunctions.disableStrategies()
 
 
 #Start

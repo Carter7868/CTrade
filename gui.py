@@ -1,17 +1,20 @@
-#Creates, Updates and Refreshes the GUI
-from algoHandler import startAlgo
-from algoHandler import disableAlgo
-from os import read
+"""
+For managing and responding to the graphical user interface (GUI)
+Funtions to Initialize, Refresh, and Update the GUI
+Also Contains "Updaters" that respond to button clicks and other various forms of user input
+The RefreshGUI() function is called in a loop
+"""
+import algoHandler
 import tkinter as tk
-from tkinter.constants import BOTH, BOTTOM, END, LEFT, X
-from fileFunctions import cleanDictionary, writeSettings #Save Changes To File
-from fileFunctions import readSettings #Import Strategies / settings
-from fileFunctions import findStrategies #Returns list of .strategy files
-from fileFunctions import cleanDictionary #Remakes strategy keys / cleans dictionary
-from ast import literal_eval #String To List
-from functools import partial #For passing Button Positions
+from tkinter.constants import BOTH, END, LEFT
+import fileFunctions
+from ast import literal_eval
+from functools import partial
 
-#GUI Settings / Parameters
+"""
+Listed below are basic adjustable parameters for modifing the GUI's appearance
+You may wish to change sizing or colors depending on your monitor size and color preference
+"""
 HEIGHT = 600
 WIDTH = 1000
 backgroundColor = '#32373B'
@@ -20,22 +23,22 @@ whiteColor = '#F7F7FF'
 orangeColor = '#FE4A49'
 greenColor = '#1cfd32'
 
-#Main Window
+#Creating Main Window
 root = tk.Tk()
 root.title("CTrade")
 root.geometry(str(WIDTH)+'x'+str(HEIGHT))
 root.configure(bg='#232729')
 
-#Main Frame
+#Creating Main Frame
 mainFrame = tk.Frame(root, height=HEIGHT,width=WIDTH,bg=backgroundColor)
 mainFrame.place(rely=0.21, relwidth=1,relheight=0.5)
 
-
-#Global Variables
 dropdownEntries = []
 
-def initializeGUI():
-    #Creates initial buttons and labels
+def initialize():
+    """Creates Initial Frames, Buttons, and Labels
+    To Do: Font Variable?
+    """
     #Top Bar Buttons
     settingFrame = tk.Frame(root, height=HEIGHT,width=WIDTH,bg=backgroundColor)
     settingFrame.place(relwidth=1,relheight=0.2)
@@ -72,151 +75,156 @@ def initializeGUI():
     statsFrame = tk.Frame(root, height=HEIGHT,width=WIDTH,bg=backgroundColor)
     statsFrame.place(rely=0.72, relwidth=1,relheight=0.5)
 
-
     root.update()
 
 def updateStrategiesGUI():
-    #Updates Labels and Buttons Within Strategy Section
-    for widget in mainFrame.winfo_children(): #Clear All Widgets
+    """Updateds labels and buttons in strategy section
+    Updates the strategy section of the gui based on strategies.ini config settings and user input
+    Deletes all widgets and then loops through all strategies / rows and displays the settings
+    """
+    for widget in mainFrame.winfo_children():
         widget.destroy()
-        #Main Labels
     dropdownEntries.clear()
-    strategies = readSettings() #Import Dictionary With Settings As List
-    for i in range(len(strategies)): #Loop through all strategies
-        settingsString = strategies["strategy" + str(i)] #Convert Strings to List
-        settingslist = literal_eval(settingsString)
+    settingsDictionary = fileFunctions.readSettings()
+    for strategyNumber in range(len(settingsDictionary)):
+        settingsList = literal_eval(settingsDictionary["strategy" + str(strategyNumber)])
         #Display Labels / Settings
-        symbol = tk.Label(mainFrame, bg=offsetgrey, text=settingslist[0])
-        symbol.grid(row=i+1,column=0,padx= 5,pady=5)
-        dataFeed = tk.Label(mainFrame, bg=offsetgrey, text=settingslist[1])
-        dataFeed.grid(row=i+1,column=1,padx= 5,pady=5)
+        symbol = tk.Label(mainFrame, bg=offsetgrey, text=settingsList[0])
+        symbol.grid(row=strategyNumber+1,column=0,padx= 5,pady=5)
+        dataFeed = tk.Label(mainFrame, bg=offsetgrey, text=settingsList[1])
+        dataFeed.grid(row=strategyNumber+1,column=1,padx= 5,pady=5)
         #Strategy Select Drop Down Option
         tkvar = tk.StringVar(root)
-        tkvar.set(settingslist[2])#Set Default Option To File Specified
-        strategy = tk.OptionMenu(mainFrame, tkvar, *findStrategies(), command=dropdownUpdater)
-        strategy.grid(row=i+1,column=2,padx= 5,pady=5)
+        tkvar.set(settingsList[2])
+        strategy = tk.OptionMenu(mainFrame, tkvar, *fileFunctions.findStrategies(), command=dropdownUpdater)
+        strategy.grid(row=strategyNumber+1,column=2,padx= 5,pady=5)
         dropdownEntries.append(tkvar)
         #Settings Button
         settingsbtn = tk.Button(mainFrame, bg=whiteColor, text="Settings")
-        settingsbtn.grid(row=i+1,column=3,padx= 5,pady=5)
+        settingsbtn.grid(row=strategyNumber+1,column=3,padx= 5,pady=5)
         #Status Button
-        if settingslist[3] == 0: #Convert 1,0 to true,false for display
-            running = False
+        if settingsList[3] == 0:
+            isRunning = False
         else:
-            running = True
-        statsbtn = tk.Button(mainFrame, bg=whiteColor, text="Running: " + str(running))
-        statsbtn.grid(row=i+1,column=4,padx= 5,pady=5)
+            isRunning = True
+        statsbtn = tk.Button(mainFrame, bg=whiteColor, text="Running: " + str(isRunning))
+        statsbtn.grid(row=strategyNumber+1,column=4,padx= 5,pady=5)
         #Activate / Pause Button
-        if running == True:
-            activeButton = tk.Button(mainFrame, bg=greenColor, text="Activate", command=partial(activeButtonUpdater,i))
-            pauseButton = tk.Button(mainFrame, bg=whiteColor, text="Pause", command=partial(pauseButtonUpdater,i))
+        if isRunning == True:
+            activeButton = tk.Button(mainFrame, bg=greenColor, text="Activate", command=partial(activeButtonUpdater,strategyNumber))
+            pauseButton = tk.Button(mainFrame, bg=whiteColor, text="Pause", command=partial(pauseButtonUpdater,strategyNumber))
         else:
-            activeButton = tk.Button(mainFrame, bg=whiteColor, text="Activate", command=partial(activeButtonUpdater,i))
-            pauseButton = tk.Button(mainFrame, bg=orangeColor, text="Pause", command=partial(pauseButtonUpdater,i))
-        activeButton.grid(row=i+1,column=5,padx= 5,pady=5)
-        pauseButton.grid(row=i+1,column=6,padx= 5,pady=5)
+            activeButton = tk.Button(mainFrame, bg=whiteColor, text="Activate", command=partial(activeButtonUpdater,strategyNumber))
+            pauseButton = tk.Button(mainFrame, bg=orangeColor, text="Pause", command=partial(pauseButtonUpdater,strategyNumber))
+        activeButton.grid(row=strategyNumber+1,column=5,padx= 5,pady=5)
+        pauseButton.grid(row=strategyNumber+1,column=6,padx= 5,pady=5)
         #Remove button
-        removebtn = tk.Button(mainFrame, bg=whiteColor, text="Remove", command=partial(removeButtonUpdater,i))
-        removebtn.grid(row=i+1,column=7,padx= 5,pady=5)
+        removebtn = tk.Button(mainFrame, bg=whiteColor, text="Remove", command=partial(removeButtonUpdater,strategyNumber))
+        removebtn.grid(row=strategyNumber+1,column=7,padx= 5,pady=5)
 
-def refeshGUI():
-    #Updates GUI
+def refesh():
+    """Refreshes / Updates GUI
+    Should be repetivly called in main loop
+    """
     root.update()
     root.update_idletasks()
 
 def dropdownUpdater(object):
-    #Loop Through All DropDowns and save all there values
-    strategies = readSettings() #Import Dictionary With Settings As List
-    i = 0
+    """Loop through all strategy drop downs and save values to strategies.ini
+    To Do: Change this to only save specific drop down that called it similar to buttons
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    strategyNumber = 0
     for dropdown in dropdownEntries: #For Each Dropdown Menu
-        settingsString = strategies["strategy"+str(i)]#Convert dictionary to list of settings
-        settingsList = literal_eval(settingsString)#Covert list string to list type
+        settingsList = literal_eval(settingsDictionary["strategy"+str(strategyNumber)])#Covert list string to list type
         settingsList[2] = dropdown.get()
-        strategies["strategy"+str(i)] = str(settingsList)
-        i += 1
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies)
+        settingsDictionary["strategy"+str(strategyNumber)] = str(settingsList)
+        strategyNumber += 1
+    fileFunctions.writeSettings(fileFunctions.cleanDictionary(settingsDictionary))
         
 def activeButtonUpdater(position):
-    #---Updating Dictionary / GUI / Save File---
-    strategies = readSettings() #Import Dictionary With Settings As List
-    settingsString = strategies["strategy"+str(position)]#Convert dictionary to list of settings
-    settingsList = literal_eval(settingsString)#Covert list string to list type
+    """Activates strategy when "Activate" button is pressed
+    Activates the file system and algortithm
+    To Do: Check if algo is already active
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    settingsList = literal_eval(settingsDictionary["strategy"+str(position)])
     if settingsList[3] == 0:
         settingsList[3] = 1
-    strategies["strategy"+str(position)] = str(settingsList)
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies) #Bad File is being passed into this
+    settingsDictionary["strategy"+str(position)] = str(settingsList)
+    fileFunctions.writeSettings(fileFunctions.cleanDictionary(settingsDictionary))
     updateStrategiesGUI()
-    #---Starting Algorithm---
-    startAlgo(position)
+    algoHandler.startAlgo(position)
 
 def pauseButtonUpdater(position):
-    strategies = readSettings() #Import Dictionary With Settings As List
-    settingsString = strategies["strategy"+str(position)]#Convert dictionary to list of settings
-    settingsList = literal_eval(settingsString)#Covert list string to list type
+    """Deactivates strategy when "Pause" button is pressed
+    Deactivates the file system and algortithm
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    settingsList = literal_eval(settingsDictionary["strategy"+str(position)])
     if settingsList[3] == 1:
         settingsList[3] = 0
-    strategies["strategy"+str(position)] = str(settingsList)
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies)
+    settingsDictionary["strategy"+str(position)] = str(settingsList)
+    fileFunctions.writeSettings(fileFunctions.cleanDictionary(settingsDictionary))
     updateStrategiesGUI()
-    #---Disabling Algorithm---
-    disableAlgo(position)
+    algoHandler.disableAlgo(position)
 
 def removeButtonUpdater(position):
-    #Removes strategies that get there remove button clicked
-    strategies = readSettings()
-    del strategies["strategy"+str(position)]
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies)
+    """Removes strategies when remove button is clicked
+    if strategy is running when remove is pressed it is disabled before deleted
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    settingsList = literal_eval(settingsDictionary["strategy"+str(position)])
+    if settingsList[3] == 1:
+        pauseButtonUpdater(position)
+    del settingsDictionary["strategy"+str(position)]
+    fileFunctions.writeSettings(fileFunctions.cleanDictionary(settingsDictionary))
     updateStrategiesGUI()
-    #TRY TO DISABLE ALGO HERE
 
 def clearStrategiesCommand():
-    strategies = readSettings()
-    strategies.clear()
-    strategies = cleanDictionary(strategies)
-    writeSettings(strategies)
-    updateStrategiesGUI()
+    """Clears all displayed strategies from GUI
+    Loops through all strategies and calls the removeButtonUpdater()
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    for strategy in settingsDictionary:
+        removeButtonUpdater(0)
 
 def addStrategyCommand():
+    """Opens new window that allows user to add strategy
+    Strategies can be added until user presses the "Close" button
+    """
     addStrategyWindow = tk.Toplevel(root,bg=backgroundColor)
     addStrategyWindow.title("CTrade - Add Strategy")
-    addStrategyWindow.geometry("400x200")
+    addStrategyWindow.geometry("350x200")
     #Label's
     symbol = tk.Label(addStrategyWindow, bg=backgroundColor, text="Symbol", font=('Helvetica', 10, 'bold'))
     symbol.grid(row=0,column=0,padx= 5,pady=5)
     strategyLabel = tk.Label(addStrategyWindow, bg=backgroundColor, text="Strategy", font=('Helvetica', 10, 'bold'))
     strategyLabel.grid(row=0,column=1,padx= 5,pady=5)
-    activeLabel = tk.Label(addStrategyWindow, bg=backgroundColor, text="Active", font=('Helvetica', 10, 'bold'))
-    activeLabel.grid(row=0,column=2,padx= 5,pady=5)
     #Crypto Selection
     symbolVar = tk.StringVar()
     cryptoSymbol = tk.Entry(addStrategyWindow, textvariable=symbolVar)
     cryptoSymbol.grid(row=1,column=0,padx= 5,pady=5)
     cryptoSymbol.insert(END, "/USDT")
-    #Active Button
-    activeVar = tk.IntVar(value=0)
-    activeBTN = tk.Checkbutton(addStrategyWindow, text='Start Active?',bg=backgroundColor, variable=activeVar)
-    activeBTN.grid(row=1,column=2,padx= 5,pady=5)
     #Strategies selection tab
     tkvar = tk.StringVar(addStrategyWindow)
-    tkvar.set(findStrategies()[0])#Set Default Option To File Specified
-    strategy = tk.OptionMenu(addStrategyWindow, tkvar, *findStrategies())
+    tkvar.set(fileFunctions.findStrategies()[0])
+    strategy = tk.OptionMenu(addStrategyWindow, tkvar, *fileFunctions.findStrategies())
     strategy.grid(row=1,column=1,padx= 5,pady=5)
     dropdownEntries.append(tkvar)
     #Cancel Button
     cancelBTN = tk.Button(addStrategyWindow, text='Close', command=addStrategyWindow.destroy)
-    cancelBTN.grid(row=2,column=2,padx= 5,pady=75)
+    cancelBTN.grid(row=2,column=1,padx= 5,pady=75)
     #Add Button
-    addBTN = tk.Button(addStrategyWindow, text='Add', command=partial(addStrategy,symbolVar, activeVar, tkvar))
-    addBTN.grid(row=2,column=1,padx= 5,pady=75)
+    addBTN = tk.Button(addStrategyWindow, text='Add', command=partial(addStrategy,symbolVar, tkvar))
+    addBTN.grid(row=2,column=0,padx= 5,pady=75)
 
-def addStrategy(symbol, active, strategy):
-    dictionary = readSettings()
-    settingsList = [str(symbol.get()), "Binance",  str(strategy.get()), active.get()]
-    dictionary["strategy"] = str(settingsList)
-    dictionary = cleanDictionary(dictionary)
-    writeSettings(dictionary)
+def addStrategy(symbol, strategy):
+    """Adds a strategy to strategies.ini
+    This function could potentially be added to fileFunctions along with delete Strategy function
+    """
+    settingsDictionary = fileFunctions.readSettings()
+    settingsList = [str(symbol.get()), "Binance",  str(strategy.get()), 0]
+    settingsDictionary["strategy"] = str(settingsList)
+    fileFunctions.writeSettings(fileFunctions.cleanDictionary(settingsDictionary))
     updateStrategiesGUI()

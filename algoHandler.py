@@ -1,8 +1,12 @@
+"""
+Provides an easy way to manage running algorithms
+Funtions to Start, Stop, View, and modify algorithms
+All algorithm are based on strategies and there settings stored in the strategies.ini config
+"""
 from ast import literal_eval
 from fileFunctions import readSettings
 import importlib
 from threading import Thread
-
 
 algorithms = []
 
