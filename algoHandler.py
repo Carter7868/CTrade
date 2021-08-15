@@ -4,13 +4,12 @@ Funtions to Start, Stop, View, and modify algorithms
 All algorithm are based on strategies and there settings stored in the strategies.ini config
 """
 from ast import literal_eval
-from fileFunctions import readSettings
 import importlib
 from threading import Thread
 
 algorithms = []
 
-def startAlgo(pos):
+def startAlgo(pos, listOfSettings):
     """Start's an algorithm with a given position value
     Creates the algorithm based on strategies.ini config settings
     Does nothing if a algorithm is already running on given position value
@@ -18,7 +17,7 @@ def startAlgo(pos):
     for algo in algorithms:
         if algo.strategyNumber == pos:
             return
-    listOfSettings = literal_eval(readSettings()["strategy"+str(pos)])
+    #listOfSettings = literal_eval(fileFunctions.readSettings()["strategy"+str(pos)])
     tradedCrypto = listOfSettings[0]
     strategyName = listOfSettings[2]
     if ".py" and strategyName.endswith(".py"):

@@ -20,7 +20,7 @@ def writeSettings(dictToWrite):
     The value is a list that contains strategy settings Eg. [ETH/USDT, Binance, Example-Strategy.py, 1]
     """
     config_object["Strategy's"] = dictToWrite
-    with open('strategies.ini', 'w') as conf:
+    with open('FileStorage.ini', 'w') as conf:
         config_object.write(conf)
 
 def readSettings():
@@ -29,7 +29,7 @@ def readSettings():
     The value is a list that contains strategy settings Eg. [ETH/USDT, Binance, Example-Strategy.py, 1]
     Note: List must be converted from a string to a list after it is pulled from the dictionary
     """
-    config_object.read("strategies.ini")
+    config_object.read("FileStorage.ini")
     return config_object["Strategy's"]
 
 def findStrategies():
@@ -79,3 +79,18 @@ def disableStrategies():
         position+=1
     algoHandler.disableAllAlgos()
     writeSettings(cleanDictionary(stratDictionary))
+
+def saveMainSettings(dictionary):
+    config_object["Main Settings"] = dictionary
+    with open('FileStorage.ini', 'w') as conf:
+        config_object.write(conf)
+
+def getMainSettings():
+    #Check if file exists otherwise use defaults
+    try:
+        config_object.read("FileStorage.ini")
+        return config_object["Main Settings"]
+    except:
+        config_object["Main Settings"] = {}
+        with open('FileStorage.ini', 'w') as conf:
+            config_object.write(conf)
