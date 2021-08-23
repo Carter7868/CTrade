@@ -2,6 +2,7 @@
 Main program funtion to initialize and run program
 Initialize is called first and run one time
 Main is called afterwords and contains the main program loop
+Requirements: python-binance
 """
 import gui
 import fileFunctions
