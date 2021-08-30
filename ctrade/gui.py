@@ -260,7 +260,11 @@ def settingsCommand():
     testApiKey = tk.StringVar()
     testApiSecretKey = tk.StringVar()
     portfolioTradePercentage = tk.StringVar()
+    maxTradeSize = tk.StringVar()
+    tradeAgainsedSymbol = tk.StringVar()
     try:
+        tradeAgainsedSymbol.set(mainSettingsDictionary["tradeAgainsedSymbol"])
+        maxTradeSize.set(mainSettingsDictionary["maxTradeSize"])
         portfolioTradePercentage.set(mainSettingsDictionary["portfolioTradePercentage"])
         testApiSecretKey.set(mainSettingsDictionary["testApiSecretKey"])
         testApiKey.set(mainSettingsDictionary["testApiKey"])
@@ -294,17 +298,29 @@ def settingsCommand():
     portfolioTradePercentEntry = tk.Entry(settingsFrame, bg=offsetgrey, textvariable=portfolioTradePercentage)
     portfolioTradePercentEntry.grid(row=2,column=1,padx= 30,pady=5)
 
+    maxTradeSizeLabel = tk.Label(settingsFrame, bg=backingColor, text="Max Trade Ammount $:", font=('Helvetica', 8))
+    maxTradeSizeLabel.grid(row=2,column=2,padx= 30,pady=5)
+    maxTradeSizeEntry = tk.Entry(settingsFrame, bg=offsetgrey, textvariable=maxTradeSize)
+    maxTradeSizeEntry.grid(row=2,column=3,padx= 30,pady=5)
+
+    tradeAgainsedSymbolLabel = tk.Label(settingsFrame, bg=backingColor, text="Symbol to trade againsed:", font=('Helvetica', 8))
+    tradeAgainsedSymbolLabel.grid(row=3,column=0,padx= 30,pady=5)
+    tradeAgainsedSymbolEntry = tk.Entry(settingsFrame, bg=offsetgrey, textvariable=tradeAgainsedSymbol)
+    tradeAgainsedSymbolEntry.grid(row=3,column=1,padx= 30,pady=5)
+
     #Save / Cancel Buttons
-    saveBTN = tk.Button(settingsFrame, text='Save', command=partial(saveMainSettings,apiKey,apiSecretKey,testApiKey,testApiSecretKey,portfolioTradePercentage))
+    saveBTN = tk.Button(settingsFrame, text='Save', command=partial(saveMainSettings,apiKey,apiSecretKey,testApiKey,testApiSecretKey,portfolioTradePercentage, maxTradeSize, tradeAgainsedSymbol))
     saveBTN.grid(row=5,column=0,padx= 5,pady=75)
 
     closeBTN = tk.Button(settingsFrame, text='Close', command=mainSettingsWindow.destroy)
     closeBTN.grid(row=5,column=1,padx= 5,pady=75)
 
-def saveMainSettings(apiKey,apiSecretKey,testApiKey,testApiSecretKey,portfolioTradePercentage):
+def saveMainSettings(apiKey,apiSecretKey,testApiKey,testApiSecretKey,portfolioTradePercentage, maxTradeSize, tradeAgainsedSymbol):
     """Takes various settings and sends to saveMainSettings() as a dictionary
     This is fairly inefficient as each new setting addition requires a slight rewrite
     Lots of work could be done to improve
     """
-    mainSettingsDictionary = {"apiKey" : apiKey.get(), "apiSecretKey" : apiSecretKey.get(), "testApiKey" : testApiKey.get(), "testApiSecretKey" : testApiSecretKey.get(), "portfolioTradePercentage" : portfolioTradePercentage.get()}
+    mainSettingsDictionary = {"apiKey" : apiKey.get(), "apiSecretKey" : apiSecretKey.get(), "testApiKey" : testApiKey.get(), 
+    "testApiSecretKey" : testApiSecretKey.get(), "portfolioTradePercentage" : portfolioTradePercentage.get(), "maxTradeSize" : maxTradeSize.get(),
+    "tradeAgainsedSymbol" : tradeAgainsedSymbol.get()}
     fileFunctions.saveMainSettings(mainSettingsDictionary)

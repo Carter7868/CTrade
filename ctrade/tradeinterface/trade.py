@@ -12,12 +12,16 @@ sys.path.append(parentdir)
 import fileFunctions
 
 testing = True
-maxTradeSize = 1000 #Add to settings as a safty
-secCurrency = 'USDT' #Second currency to trade againsed
 
-#Setup API Key
+settings = fileFunctions.getMainSettings()
 try:
-    settings = fileFunctions.getMainSettings()
+    maxTradeSize = settings["maxTradeSize"]
+    secCurrency = settings["tradeAgainsedSymbol"]
+except:
+    maxTradeSize = "0"
+    secCurrency = "USDT"
+    print("Please configure your settings and restart")
+try:
     if testing:
         api_key = settings["testapikey"]
         api_secret = settings["testapisecretkey"]
